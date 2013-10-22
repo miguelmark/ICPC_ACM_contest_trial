@@ -14,11 +14,52 @@ import javax.swing.JTextArea;
  */
 public class UVI_Player implements black.Player {
 
+    private class BoardSpace {
+        private Move firstPiece;
+        private Move secondPiece;
+        public BoardSpace(Move firstMove ) {
+            this.firstPiece = firstMove;
+            this.secondPiece = UVI_Player.findNextPossibleMove(firstMove);
+        }
+        public Move getNextPossibleMove() {
+            return this.secondPiece;
+        }
+        
+    }
+    public static Move findNextPossibleMove(Move move) {
+            switch(move) {
+                case TOP_LEFT_CURVE:
+                    return Move.BOTTOM_RIGHT_CURVE;
+                case TOP_RIGHT_CURVE:
+                    return Move.BOTTOM_LEFT_CURVE;
+                case BOTTOM_LEFT_CURVE:
+                    return Move.TOP_RIGHT_CURVE;
+                case BOTTOM_RIGHT_CURVE:
+                    return Move.TOP_LEFT_CURVE;
+                case HORIZONTAL_LINE:
+                    return Move.VERTICAL_LINE;
+                case VERTICAL_LINE:
+                    return Move.HORIZONTAL_LINE;
+                case RED_SQUARE:
+                    return Move.NO_MOVE;
+                case TIME_BONUS:
+                    return Move.ANY;
+                default:
+                    return Move.ANY;
+            }
+        }
+    private enum Move {
+        TOP_LEFT_CURVE, BOTTOM_RIGHT_CURVE,
+        HORIZONTAL_LINE, VERTICAL_LINE,
+        TOP_RIGHT_CURVE, BOTTOM_LEFT_CURVE,
+        RED_SQUARE, TIME_BONUS, NO_MOVE, ANY
+    }
     private enum Direction {
 
         UP, DOWN, LEFT, RIGHT
     }
     private int[][] gameBoard;
+    private BoardSpace[][] virtualBoard;
     private int xPosition;
     private int yPosition;
     private Direction currentDirection;
@@ -37,6 +78,7 @@ public class UVI_Player implements black.Player {
 
     public UVI_Player(int[][] gameboard) {
         this.gameBoard = gameboard;
+        this.virtualBoard = new BoardSpace[gameboard.length][gameboard.length];
         this.xPosition = 0;
         this.yPosition = 0;
         this.lastMove = 0;
@@ -57,6 +99,7 @@ public class UVI_Player implements black.Player {
             this.currentDirection = Direction.DOWN;
             // save the move we just made
             this.lastMove = 2;
+            this.virtualBoard[0][1] = new BoardSpace(Move.VERTICAL_LINE);
             return 2;
         } else {
             // calculate board position based on previous card
@@ -66,7 +109,8 @@ public class UVI_Player implements black.Player {
                 // our positioning also depends on our last move
                 if (this.currentDirection == Direction.UP) {
                     // move to the right one space
-                    this.xPosition += 1;
+                    this.virtualBoard[this.xPosition][this.yPosition] = new BoardSpace(Move.VERTICAL_LINE);
+                    this.xPosition += 1;                    
                     this.currentDirection = Direction.RIGHT;
                 } else if (this.currentDirection == Direction.DOWN) {
                     // move to the left by one space
