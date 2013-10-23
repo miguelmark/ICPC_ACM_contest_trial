@@ -7,6 +7,8 @@ package icpc.acm.contest.trial;
 import black.*;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
+import java.util.*;
+import java.util.AbstractMap.SimpleEntry;
 
 /**
  *
@@ -19,10 +21,14 @@ public class UVI_Player implements black.Player {
         private Move secondPiece;
         public BoardSpace(Move firstMove ) {
             this.firstPiece = firstMove;
-            this.secondPiece = UVI_Player.findNextPossibleMove(firstMove);
+            this.secondPiece = Move.NO_MOVE;
         }
         public Move getNextPossibleMove() {
             return this.secondPiece;
+        }
+        
+        public void setSecondPiece() {
+            this.secondPiece = UVI_Player.findNextPossibleMove(this.firstPiece);
         }
         
     }
@@ -86,6 +92,23 @@ public class UVI_Player implements black.Player {
 
     @Override
     public int play(int lastPlayedCard) {
+        if(lastPlayedCard == 0) {
+            this.establishBoardLocation(lastPlayedCard);
+            return 2;
+        }else {
+            this.establishBoardLocation(lastPlayedCard);
+            displayArea.setText("UVI player was at [" + this.xPosition + "," + this.yPosition + "]");
+            int result = level1Algorithm(); // run desired algo
+            displayArea.append("\nUVI player moving to [" + this.xPosition + "," + this.yPosition + "]");
+            displayArea.append("\nGameBoard length " + this.gameBoard.length);
+            displayArea.append("\nOld Direction " + this.currentDirection.toString());
+            displayArea.append("\nChosen card " + result);
+            displayArea.append("\nNew direction = " + this.currentDirection.toString());
+            return result;
+        }
+    }
+    
+    private void establishBoardLocation(int lastPlayedCard) {
         if (lastPlayedCard == 0) {
             // first play of the game
             // We start at [0,0]
@@ -100,7 +123,6 @@ public class UVI_Player implements black.Player {
             // save the move we just made
             this.lastMove = 2;
             this.virtualBoard[0][1] = new BoardSpace(Move.VERTICAL_LINE);
-            return 2;
         } else {
             // calculate board position based on previous card
             // played by our opponent
@@ -109,18 +131,111 @@ public class UVI_Player implements black.Player {
                 // our positioning also depends on our last move
                 if (this.currentDirection == Direction.UP) {
                     // move to the right one space
-                    this.virtualBoard[this.xPosition][this.yPosition] = new BoardSpace(Move.VERTICAL_LINE);
-                    this.xPosition += 1;                    
-                    this.currentDirection = Direction.RIGHT;
+                    // Place card in virtual card space
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_RIGHT_CURVE);
+                    // Determine actual positioning based on current board condition
+                    BoardSpace assumedSpace = this.virtualBoard[xPosition + 1][yPosition];
+                    if(assumedSpace == null) {
+                        // empty space
+                        // process as normal
+                        this.xPosition += 1;                    
+                        this.currentDirection = Direction.RIGHT;
+                    }else {
+                        // We need to do some more caluclations
+                        // board space is already taken
+                        // determine detour
+                        assumedSpace.setSecondPiece();
+                        switch(assumedSpace.getNextPossibleMove()) {
+                            case HORIZONTAL_LINE:
+                                // we actually skip over this square 
+                                // and keep going right
+                                this.xPosition += 2;
+                                this.currentDirection = Direction.RIGHT;
+                            case TOP_LEFT_CURVE:
+                                this.xPosition += 2;
+                                this.yPosition -= 1;
+                                this.currentDirection = Direction.UP;
+                        }
+                    }
+                    
                 } else if (this.currentDirection == Direction.DOWN) {
                     // move to the left by one space
-                    this.xPosition -= 1;
-                    this.currentDirection = Direction.LEFT;
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_LEFT_CURVE);
+                    BoardSpace assumedSpace = this.virtualBoard[xPosition - 1][yPosition];
+                    if(assumedSpace == null) {
+                        // empty space
+                        // process as normal
+                        this.xPosition -= 1;                    
+                        this.currentDirection = Direction.LEFT;
+                    }else {
+                        // We need to do some more caluclations
+                        // board space is already taken
+                        // determine detour
+                        assumedSpace.setSecondPiece();
+                        switch(assumedSpace.getNextPossibleMove()) {
+                            case HORIZONTAL_LINE:
+                                // we actually skip over this square 
+                                // and keep going left
+                                this.xPosition -=2;
+                                this.currentDirection = Direction.LEFT;
+                            case TOP_LEFT_CURVE:
+                                this.xPosition -= 2;
+                                this.yPosition += 1;
+                                this.currentDirection = Direction.LEFT;
+                        }
+                    }
                 } else if (this.currentDirection == Direction.LEFT) {
                     // move one space down
-                    this.yPosition += 1;
-                    this.currentDirection = Direction.DOWN;
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_RIGHT_CURVE);
+                    BoardSpace assumedSpace = this.virtualBoard[xPosition ][yPosition + 1];
+                    if(assumedSpace == null) {
+                        // empty space
+                        // process as normal
+                        this.yPosition += 1;                    
+                        this.currentDirection = Direction.DOWN;
+                    }else {
+                        // We need to do some more caluclations
+                        // board space is already taken
+                        // determine detour
+                        assumedSpace.setSecondPiece();
+                        switch(assumedSpace.getNextPossibleMove()) {
+                            case VERTICAL_LINE:
+                                // we actually skip over this square 
+                                // and keep going left
+                                this.yPosition +=2;
+                                this.currentDirection = Direction.DOWN;
+                            case BOTTOM_RIGHT_CURVE:
+                                this.xPosition -= 2;
+                                this.yPosition += 1;
+                                this.currentDirection = Direction.DOWN;
+                        }
+                    }
+                    
                 } else {
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_LEFT_CURVE);
+                    BoardSpace assumedSpace = this.virtualBoard[xPosition ][yPosition - 1];
+                    if(assumedSpace == null) {
+                        // empty space
+                        // process as normal
+                        this.xPosition += 1;                    
+                        this.currentDirection = Direction.RIGHT;
+                    }else {
+                        // We need to do some more caluclations
+                        // board space is already taken
+                        // determine detour
+                        assumedSpace.setSecondPiece();
+                        switch(assumedSpace.getNextPossibleMove()) {
+                            case HORIZONTAL_LINE:
+                                // we actually skip over this square 
+                                // and keep going left
+                                this.xPosition +=2;
+                                this.currentDirection = Direction.RIGHT;
+                            case BOTTOM_LEFT_CURVE:
+                                this.xPosition += 2;
+                                this.yPosition -= 1;
+                                this.currentDirection = Direction.RIGHT;
+                        }
+                    }
                     this.yPosition -= 1;
                     this.currentDirection = Direction.UP;
                 }
@@ -128,18 +243,22 @@ public class UVI_Player implements black.Player {
                 // our positioning also depends on our last move
                 if (this.currentDirection == Direction.UP) {
                     // move to the up one space
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
                     this.yPosition -= 1;
                     this.currentDirection = Direction.UP;
                 } else if (this.currentDirection == Direction.DOWN) {
                     // move to the down by one space
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
                     this.yPosition += 1;
                     this.currentDirection = Direction.DOWN;
                 } else if (this.currentDirection == Direction.LEFT) {
                     // move one to the left
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
                     this.xPosition -= 1;
                     this.currentDirection = Direction.LEFT;
                 } else {
                     // move one space to the right
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
                     this.xPosition += 1;
                     this.currentDirection = Direction.RIGHT;
                 }
@@ -148,33 +267,29 @@ public class UVI_Player implements black.Player {
                 // third card
                 if (this.currentDirection == Direction.UP) {
                     // move to the left one space
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_LEFT_CURVE);
                     this.xPosition -= 1;
                     this.currentDirection = Direction.LEFT;
                 } else if (this.currentDirection == Direction.DOWN) {
                     // move to the right by one space
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_RIGHT_CURVE);
                     this.xPosition += 1;
                     this.currentDirection = Direction.RIGHT;
                 } else if (this.currentDirection == Direction.LEFT) {
                     // move one space up
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_RIGHT_CURVE);
                     this.yPosition -= 1;
                     this.currentDirection = Direction.UP;
                 } else {
                     // move one space down
+                    this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_LEFT_CURVE);
                     this.yPosition += 1;
                     this.currentDirection = Direction.DOWN;
                 }
             }
-            displayArea.setText("UVI player was at [" + this.xPosition + "," + this.yPosition + "]");
-            int result = level1Algorithm(); // run desired algo
-            displayArea.append("\nUVI player moving to [" + this.xPosition + "," + this.yPosition + "]");
-            displayArea.append("\nGameBoard length " + this.gameBoard.length);
-            displayArea.append("\nOld Direction " + this.currentDirection.toString());
-            displayArea.append("\nChosen card " + result);
-            displayArea.append("\nNew direction = " + this.currentDirection.toString());
-            return result;
+            
         }
     }
-
     public int trivialAlgorithm() {
         // given our current position determine a safe move to perform
         // This does NOT provide the most optimal move
@@ -270,7 +385,7 @@ public class UVI_Player implements black.Player {
             }
         }
     }
-
+    
     public int level1Algorithm() {
         // given our current position determine a safe move to perform
         // This does NOT provide the most optimal move
@@ -531,7 +646,7 @@ public class UVI_Player implements black.Player {
         return card;
     }
 
-    public boolean isSafePosition(int x, int y) {
+    private boolean isSafePosition(int x, int y) {
         boolean isSafe = false;
         if (this.gameBoard[x][y] >= 0) {
             isSafe = true;
