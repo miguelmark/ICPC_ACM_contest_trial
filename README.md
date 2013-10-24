@@ -18,3 +18,5 @@ _____________________________________
    and run it from the IDE
 2. Run the jar found in 
    [Project folder name] -> dist
+3. Add JAR file blacklib.jar to project
+   [Can find the file in dist -> lib]
