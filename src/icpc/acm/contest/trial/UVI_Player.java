@@ -108,6 +108,67 @@ public class UVI_Player implements black.Player {
         }
     }
     
+    private void crawlBoard(int xPos, int yPos, Direction currentDirection) {
+        // Determine current board location
+        BoardSpace currentSpace = this.virtualBoard[xPos][yPos];
+        if(currentSpace == null) {
+            // empty space
+            // base case
+            // we have landed on this  space
+            this.xPosition = xPos;
+            this.yPosition = yPos;
+            this.currentDirection = currentDirection;
+        }else {
+            // we might be set off course
+            // from the original intended path
+            currentSpace.setSecondPiece();
+            switch(currentSpace.getNextPossibleMove()) {
+                case VERTICAL_LINE:
+                    if(currentDirection == Direction.DOWN) {
+                        crawlBoard(xPos, yPos + 1, Direction.DOWN);
+                    }else if(currentDirection == Direction.UP) {
+                        crawlBoard(xPos, yPos - 1, Direction.UP);
+                    }
+                    break;
+                case HORIZONTAL_LINE:
+                    if(currentDirection == Direction.LEFT) {
+                        crawlBoard(xPos - 1, yPos, Direction.LEFT);
+                    }else if(currentDirection == Direction.RIGHT) {
+                        crawlBoard(xPos + 1, yPos, Direction.RIGHT);
+                    }
+                    break;
+                case TOP_LEFT_CURVE:
+                    if(currentDirection == Direction.RIGHT) {
+                        crawlBoard(xPos, yPos - 1, Direction.UP);
+                    }else if(currentDirection == Direction.DOWN) {
+                        crawlBoard(xPos - 1, yPos, Direction.LEFT);
+                    }
+                    break;
+                case TOP_RIGHT_CURVE:
+                    if(currentDirection == Direction.LEFT) {
+                        crawlBoard(xPos, yPos - 1, Direction.UP);
+                    }else if(currentDirection == Direction.DOWN) {
+                        crawlBoard(xPos + 1, yPos, Direction.RIGHT);
+                    }
+                    break;
+                case BOTTOM_LEFT_CURVE:
+                    if(currentDirection == Direction.RIGHT) {
+                        crawlBoard(xPos, yPos + 1, Direction.DOWN);
+                    }else if(currentDirection == Direction.UP) {
+                        crawlBoard(xPos - 1, yPos, Direction.LEFT);
+                    }
+                    break;
+                case BOTTOM_RIGHT_CURVE:
+                    if(currentDirection == Direction.LEFT) {
+                        crawlBoard(xPos, yPos + 1, Direction.DOWN);
+                    }else if(currentDirection == Direction.UP) {
+                        crawlBoard(xPos + 1, yPos, Direction.RIGHT);
+                    }
+                    break;
+            }
+        }
+    } 
+    
     private void establishBoardLocation(int lastPlayedCard) {
         if (lastPlayedCard == 0) {
             // first play of the game
@@ -121,7 +182,7 @@ public class UVI_Player implements black.Player {
             // set current direction to down
             this.currentDirection = Direction.DOWN;
             // save the move we just made
-            this.lastMove = 2;
+            // this.lastMove = 2;
             this.virtualBoard[0][1] = new BoardSpace(Move.VERTICAL_LINE);
         } else {
             // calculate board position based on previous card
@@ -134,133 +195,41 @@ public class UVI_Player implements black.Player {
                     // Place card in virtual card space
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_RIGHT_CURVE);
                     // Determine actual positioning based on current board condition
-                    BoardSpace assumedSpace = this.virtualBoard[xPosition + 1][yPosition];
-                    if(assumedSpace == null) {
-                        // empty space
-                        // process as normal
-                        this.xPosition += 1;                    
-                        this.currentDirection = Direction.RIGHT;
-                    }else {
-                        // We need to do some more caluclations
-                        // board space is already taken
-                        // determine detour
-                        assumedSpace.setSecondPiece();
-                        switch(assumedSpace.getNextPossibleMove()) {
-                            case HORIZONTAL_LINE:
-                                // we actually skip over this square 
-                                // and keep going right
-                                this.xPosition += 2;
-                                this.currentDirection = Direction.RIGHT;
-                            case TOP_LEFT_CURVE:
-                                this.xPosition += 2;
-                                this.yPosition -= 1;
-                                this.currentDirection = Direction.UP;
-                        }
-                    }
-                    
+                    crawlBoard(xPosition + 1, yPosition, Direction.RIGHT);                                        
                 } else if (this.currentDirection == Direction.DOWN) {
                     // move to the left by one space
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_LEFT_CURVE);
-                    BoardSpace assumedSpace = this.virtualBoard[xPosition - 1][yPosition];
-                    if(assumedSpace == null) {
-                        // empty space
-                        // process as normal
-                        this.xPosition -= 1;                    
-                        this.currentDirection = Direction.LEFT;
-                    }else {
-                        // We need to do some more caluclations
-                        // board space is already taken
-                        // determine detour
-                        assumedSpace.setSecondPiece();
-                        switch(assumedSpace.getNextPossibleMove()) {
-                            case HORIZONTAL_LINE:
-                                // we actually skip over this square 
-                                // and keep going left
-                                this.xPosition -=2;
-                                this.currentDirection = Direction.LEFT;
-                            case TOP_LEFT_CURVE:
-                                this.xPosition -= 2;
-                                this.yPosition += 1;
-                                this.currentDirection = Direction.LEFT;
-                        }
-                    }
+                    crawlBoard(xPosition - 1, yPosition, Direction.LEFT);
                 } else if (this.currentDirection == Direction.LEFT) {
                     // move one space down
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_RIGHT_CURVE);
-                    BoardSpace assumedSpace = this.virtualBoard[xPosition ][yPosition + 1];
-                    if(assumedSpace == null) {
-                        // empty space
-                        // process as normal
-                        this.yPosition += 1;                    
-                        this.currentDirection = Direction.DOWN;
-                    }else {
-                        // We need to do some more caluclations
-                        // board space is already taken
-                        // determine detour
-                        assumedSpace.setSecondPiece();
-                        switch(assumedSpace.getNextPossibleMove()) {
-                            case VERTICAL_LINE:
-                                // we actually skip over this square 
-                                // and keep going left
-                                this.yPosition +=2;
-                                this.currentDirection = Direction.DOWN;
-                            case BOTTOM_RIGHT_CURVE:
-                                this.xPosition -= 2;
-                                this.yPosition += 1;
-                                this.currentDirection = Direction.DOWN;
-                        }
-                    }
+                    crawlBoard(xPosition, yPosition + 1, Direction.DOWN);
                     
                 } else {
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_LEFT_CURVE);
-                    BoardSpace assumedSpace = this.virtualBoard[xPosition ][yPosition - 1];
-                    if(assumedSpace == null) {
-                        // empty space
-                        // process as normal
-                        this.xPosition += 1;                    
-                        this.currentDirection = Direction.RIGHT;
-                    }else {
-                        // We need to do some more caluclations
-                        // board space is already taken
-                        // determine detour
-                        assumedSpace.setSecondPiece();
-                        switch(assumedSpace.getNextPossibleMove()) {
-                            case HORIZONTAL_LINE:
-                                // we actually skip over this square 
-                                // and keep going left
-                                this.xPosition +=2;
-                                this.currentDirection = Direction.RIGHT;
-                            case BOTTOM_LEFT_CURVE:
-                                this.xPosition += 2;
-                                this.yPosition -= 1;
-                                this.currentDirection = Direction.RIGHT;
-                        }
-                    }
-                    this.yPosition -= 1;
-                    this.currentDirection = Direction.UP;
+                    crawlBoard(xPosition, yPosition - 1, Direction.UP);                   
                 }
             } else if (lastPlayedCard == 2) {
                 // our positioning also depends on our last move
                 if (this.currentDirection == Direction.UP) {
                     // move to the up one space
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
-                    this.yPosition -= 1;
-                    this.currentDirection = Direction.UP;
+                    crawlBoard(xPosition, yPosition - 1, Direction.UP);
+                                      
                 } else if (this.currentDirection == Direction.DOWN) {
                     // move to the down by one space
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
-                    this.yPosition += 1;
-                    this.currentDirection = Direction.DOWN;
+                    crawlBoard(xPosition, yPosition + 1, Direction.DOWN);
+                    
                 } else if (this.currentDirection == Direction.LEFT) {
                     // move one to the left
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
-                    this.xPosition -= 1;
-                    this.currentDirection = Direction.LEFT;
+                    crawlBoard(xPosition - 1, yPosition, Direction.LEFT);
+                    
                 } else {
                     // move one space to the right
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
-                    this.xPosition += 1;
-                    this.currentDirection = Direction.RIGHT;
+                    crawlBoard(xPosition + 1, yPosition, Direction.RIGHT);                   
                 }
             } else {
                 // our positioning also depends on our last move
@@ -268,28 +237,29 @@ public class UVI_Player implements black.Player {
                 if (this.currentDirection == Direction.UP) {
                     // move to the left one space
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_LEFT_CURVE);
-                    this.xPosition -= 1;
-                    this.currentDirection = Direction.LEFT;
+                    crawlBoard(xPosition - 1, yPosition, Direction.LEFT);
+                    
                 } else if (this.currentDirection == Direction.DOWN) {
                     // move to the right by one space
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_RIGHT_CURVE);
-                    this.xPosition += 1;
-                    this.currentDirection = Direction.RIGHT;
+                    crawlBoard(xPosition + 1, yPosition, Direction.RIGHT);
+                                      
                 } else if (this.currentDirection == Direction.LEFT) {
                     // move one space up
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_RIGHT_CURVE);
-                    this.yPosition -= 1;
-                    this.currentDirection = Direction.UP;
+                    crawlBoard(xPosition, yPosition - 1, Direction.UP);
+      
                 } else {
                     // move one space down
                     this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_LEFT_CURVE);
-                    this.yPosition += 1;
-                    this.currentDirection = Direction.DOWN;
+                    crawlBoard(xPosition, yPosition + 1, Direction.DOWN);
+                    
                 }
             }
             
         }
     }
+    
     public int trivialAlgorithm() {
         // given our current position determine a safe move to perform
         // This does NOT provide the most optimal move
