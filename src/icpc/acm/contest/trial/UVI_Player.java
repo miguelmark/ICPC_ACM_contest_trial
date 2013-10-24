@@ -32,6 +32,59 @@ public class UVI_Player implements black.Player {
         }
         
     }
+    private class NavObj {
+        private int xPos;
+        private int yPos;
+        private Direction direction;
+        public NavObj(int xPos, int yPos, Direction direction) {
+            this.xPos = xPos;
+            this.yPos = yPos;
+            this.direction = direction;
+        }
+
+        /**
+         * @return the xPos
+         */
+        public int getxPos() {
+            return xPos;
+        }
+
+        /**
+         * @param xPos the xPos to set
+         */
+        public void setxPos(int xPos) {
+            this.xPos = xPos;
+        }
+
+        /**
+         * @return the yPos
+         */
+        public int getyPos() {
+            return yPos;
+        }
+
+        /**
+         * @param yPos the yPos to set
+         */
+        public void setyPos(int yPos) {
+            this.yPos = yPos;
+        }
+
+        /**
+         * @return the direction
+         */
+        public Direction getDirection() {
+            return direction;
+        }
+
+        /**
+         * @param direction the direction to set
+         */
+        public void setDirection(Direction direction) {
+            this.direction = direction;
+        }
+        
+    }
     public static Move findNextPossibleMove(Move move) {
             switch(move) {
                 case TOP_LEFT_CURVE:
@@ -98,7 +151,7 @@ public class UVI_Player implements black.Player {
         }else {
             this.establishBoardLocation(lastPlayedCard);
             displayArea.setText("UVI player was at [" + this.xPosition + "," + this.yPosition + "]");
-            int result = level1Algorithm(); // run desired algo
+            int result = level2Algorithm(); // run desired algo
             displayArea.append("\nUVI player moving to [" + this.xPosition + "," + this.yPosition + "]");
             displayArea.append("\nGameBoard length " + this.gameBoard.length);
             displayArea.append("\nOld Direction " + this.currentDirection.toString());
@@ -169,6 +222,78 @@ public class UVI_Player implements black.Player {
         }
     } 
     
+    private NavObj foresight(int xPos, int yPos, Direction currentDirection) {
+        // Determine current board location
+        System.out.println("FORESIGHT: Investigating [" + xPos + "," + yPos + "]");
+        System.out.println("currently moving " + currentDirection.toString());
+        // Check if have reached out of bounds
+        if(xPos > this.gameBoard.length - 1  || xPos < 0 || yPos > this.gameBoard.length - 1 || yPos < 0) {
+            // reached out of bounds return unsafe indicator
+            System.out.println("\nOoops! Reached out of bounds!\n");
+            return new NavObj(-1, -1, Direction.DOWN);
+        }
+        BoardSpace currentSpace = this.virtualBoard[xPos][yPos];
+        if(currentSpace == null) {
+            // empty space
+            // base case
+            // we have landed on this  space
+            return new NavObj(xPos, yPos, currentDirection);
+        }else {
+            // we might be set off course
+            // from the original intended path
+            currentSpace.setSecondPiece();
+            switch(currentSpace.getNextPossibleMove()) {
+                case VERTICAL_LINE:
+                    if(currentDirection == Direction.DOWN) {
+                        return foresight(xPos, yPos + 1, Direction.DOWN);
+                    }else if(currentDirection == Direction.UP) {
+                        return foresight(xPos, yPos - 1, Direction.UP);
+                    }
+                    break;
+                case HORIZONTAL_LINE:
+                    if(currentDirection == Direction.LEFT) {
+                        return foresight(xPos - 1, yPos, Direction.LEFT);
+                    }else if(currentDirection == Direction.RIGHT) {
+                        return foresight(xPos + 1, yPos, Direction.RIGHT);
+                    }
+                    break;
+                case TOP_LEFT_CURVE:
+                    if(currentDirection == Direction.RIGHT) {
+                        return foresight(xPos, yPos - 1, Direction.UP);
+                    }else if(currentDirection == Direction.DOWN) {
+                        return foresight(xPos - 1, yPos, Direction.LEFT);
+                    }
+                    break;
+                case TOP_RIGHT_CURVE:
+                    if(currentDirection == Direction.LEFT) {
+                        return foresight(xPos, yPos - 1, Direction.UP);
+                    }else if(currentDirection == Direction.DOWN) {
+                        return foresight(xPos + 1, yPos, Direction.RIGHT);
+                    }
+                    break;
+                case BOTTOM_LEFT_CURVE:
+                    if(currentDirection == Direction.RIGHT) {
+                        return foresight(xPos, yPos + 1, Direction.DOWN);
+                    }else if(currentDirection == Direction.UP) {
+                        return foresight(xPos - 1, yPos, Direction.LEFT);
+                    }
+                    break;
+                case BOTTOM_RIGHT_CURVE:
+                    if(currentDirection == Direction.LEFT) {
+                        return foresight(xPos, yPos + 1, Direction.DOWN);
+                    }else if(currentDirection == Direction.UP) {
+                        return foresight(xPos + 1, yPos, Direction.RIGHT);
+                    }
+                    break;
+                 default:
+                     return null;
+                     
+            }
+        }
+        
+        return null;
+    }
+    
     private void establishBoardLocation(int lastPlayedCard) {
         if (lastPlayedCard == 0) {
             // first play of the game
@@ -177,13 +302,14 @@ public class UVI_Player implements black.Player {
             // That will move us to [0,1]
             // Therefore we already know the position 
             // for our opponnet
+            this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
             this.xPosition = 0;
             this.yPosition = 1;
             // set current direction to down
             this.currentDirection = Direction.DOWN;
             // save the move we just made
             // this.lastMove = 2;
-            this.virtualBoard[0][1] = new BoardSpace(Move.VERTICAL_LINE);
+            
         } else {
             // calculate board position based on previous card
             // played by our opponent
@@ -428,8 +554,6 @@ public class UVI_Player implements black.Player {
                         cardIsChosen = true;
                         break;
                 }
-
-
                 //
             } else if (this.currentDirection == Direction.DOWN) {
                 switch (option) {
@@ -616,12 +740,316 @@ public class UVI_Player implements black.Player {
         return card;
     }
 
+    public int level2Algorithm() {
+        // given our current position determine a safe move to perform
+        // This does NOT provide the most optimal move
+        // but rather a move that is legal
+        // if no moves are legal or safe
+        // the player will choose the first move by default
+        // Level 1 attempts to avoid red squares
+        // if no safe moves are possible the second card
+        // is chosen by default
+        System.out.println("\nUtilizing Level 2 algorithm with foresight ability....\n");
+        int card = 2;
+        int option = 0;
+        boolean cardIsChosen = false;
+        NavObj nextLocation;
+        do {
+            if (this.currentDirection == Direction.UP) {
+                
+                switch (option) {
+                    case 0:
+                        if ((this.yPosition - 1) > 0) {
+                            // we can continue to move up
+                            // return cross card
+                            
+                            // determine abosulte ending position on board
+                            nextLocation = foresight(xPosition, yPosition - 1, Direction.UP);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
+                                this.yPosition = nextLocation.getyPos();
+                                this.xPosition = nextLocation.getxPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 2;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        } else {
+                            option += 1;
+                        }
+                        break;
+                    case 1:
+                        if ((this.xPosition - 1) > 0) {
+                            // we can go to the left one
+                            nextLocation = foresight(xPosition - 1, yPosition, Direction.LEFT);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos() )) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_LEFT_CURVE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 3;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        }else {
+                            option += 1;
+                        }
+                        break;
+                    case 2:
+                        if ((this.xPosition + 1) <= this.gameBoard.length - 1) {
+                            // we can go the right
+                            nextLocation = foresight(xPosition + 1, yPosition, Direction.RIGHT);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_RIGHT_CURVE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 1;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        }else {
+                            option += 1;
+                        }
+                        break;
+                    default:
+                        // lost
+                        // ran out of options
+                        // reset option counter
+                        option = 0;
+                        // select default card to return
+                        this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
+                        card = 2;
+                        cardIsChosen = true;
+                        break;
+                }
+                //
+            } else if (this.currentDirection == Direction.DOWN) {
+                switch (option) {
+                    case 0:
+                        if ((this.yPosition + 1) <= this.gameBoard.length - 1) {
+                            // we can continue to move up
+                            // return cross card
+                            nextLocation = foresight(xPosition, yPosition + 1, Direction.DOWN);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 2;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        } else {
+                            option += 1;
+                        }
+                        break;
+                    case 1:
+                        if ((this.xPosition - 1) > 0) {
+                            // we can go to the left one
+                            nextLocation = foresight(xPosition - 1, yPosition, Direction.LEFT);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos() )) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_LEFT_CURVE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.xPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 1;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        }else {
+                            option += 1;
+                        }
+                        break;
+                    case 2:
+                        if ((this.xPosition + 1) <= this.gameBoard.length - 1) {
+                            // we can go the right
+                            nextLocation = foresight(xPosition + 1, yPosition, Direction.RIGHT);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_RIGHT_CURVE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 3;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        }else {
+                            option += 1;
+                        }
+                        break;
+                    default:
+                        // lost
+                        // ran out of options
+                        // reset option counter
+                        option = 0;
+                        // select default card to return
+                        this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
+                        card = 2;
+                        cardIsChosen = true;
+                        break;
+                }
+                
+                
+            } else if (this.currentDirection == Direction.LEFT) {                
+                ///////////////
+                switch (option) {
+                    case 0:
+                        if ((this.xPosition - 1) > 0) {
+                            // we can continue to move up
+                            // return cross card
+                            nextLocation = foresight(xPosition - 1, yPosition, Direction.LEFT);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 2;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        } else {
+                            option += 1;
+                        }
+                        break;
+                    case 1:
+                        if ((this.yPosition - 1) > 0) {
+                            // we can go to the left one
+                            nextLocation = foresight(xPosition, yPosition - 1, Direction.UP);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos() )) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_RIGHT_CURVE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 3;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        }else {
+                            option += 1;
+                        }
+                        break;
+                    case 2:
+                        if ((this.yPosition + 1) <= this.gameBoard.length - 1) {
+                            // we can go the right
+                            nextLocation = foresight(xPosition, yPosition + 1, Direction.DOWN);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_RIGHT_CURVE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 1;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        }else {
+                            option += 1;
+                        }
+                        break;
+                    default:
+                        // lost
+                        // ran out of options
+                        // reset option counter
+                        option = 0;
+                        // select default card to return
+                        this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
+                        card = 2; 
+                        cardIsChosen = true;
+                        break;
+                }
+            } else {
+                // this.currentDirection == Direction.RIGHT;
+                switch (option) {
+                    case 0:
+                        if ((this.xPosition + 1) <= this.gameBoard.length -1) {
+                            // we can continue to move up
+                            // return cross card
+                            nextLocation = foresight(xPosition + 1, yPosition, Direction.RIGHT);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 2;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        } else {
+                            option += 1;
+                        }
+                        break;
+                    case 1:
+                        if ((this.yPosition - 1) > 0) {
+                            // we can go to the left one
+                            nextLocation = foresight(xPosition, yPosition - 1, Direction.UP);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_LEFT_CURVE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 1;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        }else {
+                            option += 1;
+                        }
+                        break;
+                    case 2:
+                        if ((this.yPosition + 1) <= this.gameBoard.length - 1) {
+                            // we can go the right
+                            nextLocation = foresight(xPosition, yPosition + 1, Direction.DOWN);
+                            if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
+                                this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.BOTTOM_LEFT_CURVE);
+                                this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
+                                this.currentDirection = nextLocation.getDirection();
+                                card = 3;
+                                cardIsChosen = true;
+                            } else {
+                                option += 1;
+                            }
+                        }else {
+                            option += 1;
+                        }
+                        break;
+                    default:
+                        // lost
+                        // ran out of options
+                        // reset option counter
+                        option = 0;
+                        // select default card to return
+                        this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
+                        card = 2;
+                        cardIsChosen = true;
+                        break;
+                }
+            }
+        } while (cardIsChosen != true);
+
+
+        return card;
+    }
+    
     private boolean isSafePosition(int x, int y) {
         boolean isSafe = false;
-        if (this.gameBoard[x][y] >= 0) {
-            isSafe = true;
+        if(x < 0 || y < 0) {
+            isSafe = false;
         } else if (x > this.gameBoard.length - 1 || y > this.gameBoard.length - 1) {
             isSafe = false;
+        } else if(this.gameBoard[x][y] >= 0) {
+            isSafe = true;
         } else {
             isSafe =  false;
         }
