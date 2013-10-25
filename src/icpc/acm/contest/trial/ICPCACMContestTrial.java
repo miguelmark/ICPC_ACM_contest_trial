@@ -16,7 +16,7 @@ public class ICPCACMContestTrial {
     public static void main(String[] args) {
         // TODO code application logic here
         Black.gridOn();
-        Black.start(5, UVI_Player.class, Demo.class);
+        Black.start(10, Demo.class, UVI_Player.class);
         
     }
 }

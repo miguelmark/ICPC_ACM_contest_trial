@@ -150,6 +150,11 @@ public class UVI_Player implements black.Player {
         this.xPosition = 0;
         this.yPosition = 0;
         this.lastMove = 0;
+        // Very Important!! Without this, the second AI will assume they are
+        // currently heading to the right
+        // when in fact we always start at 0,0 -> 0,1 facing DOWN
+        // Does not really affect first turn
+        this.currentDirection = Direction.DOWN; 
     }
 
     @Override
@@ -240,7 +245,7 @@ public class UVI_Player implements black.Player {
         // System.out.println("FORESIGHT: Investigating [" + xPos + "," + yPos + "]");
         // System.out.println("currently moving " + currentDirection.toString());
         // Check if have reached out of bounds
-        if (xPos > this.gameBoard.length - 1 || xPos < 0 || yPos > this.gameBoard.length - 1 || yPos < 0) {
+        if (isSafePosition(xPos, yPos) != true) {
             // reached out of bounds return unsafe indicator
             System.out.println("\nOoops! Reached out of bounds!\n");
             return new NavObj(-1, -1, Direction.DOWN);
