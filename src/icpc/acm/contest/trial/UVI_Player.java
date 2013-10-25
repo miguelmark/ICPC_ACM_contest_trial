@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -132,7 +133,7 @@ public class UVI_Player implements black.Player {
         debugPanel.getContentPane().add(displayArea);
         debugPanel.pack();
         debugPanel.setVisible(true);
-        debugPanel.setSize(640, 320);
+        debugPanel.setSize(480, 320);
     }
 
     public UVI_Player(int[][] gameboard) {
@@ -163,11 +164,15 @@ public class UVI_Player implements black.Player {
     
     private void crawlBoard(int xPos, int yPos, Direction currentDirection) {
         // Determine current board location
+        System.out.println("Starting board traversal at [" + xPos + "," + yPos + "]");
+        System.out.println("Direction: " + currentDirection.toString());
         BoardSpace currentSpace = this.virtualBoard[xPos][yPos];
         if(currentSpace == null) {
             // empty space
             // base case
             // we have landed on this  space
+            System.out.println("Landed on blank space at [" + xPos + "," + yPos + "]");
+            System.out.println("Direction: " + currentDirection.toString());
             this.xPosition = xPos;
             this.yPosition = yPos;
             this.currentDirection = currentDirection;
@@ -224,8 +229,8 @@ public class UVI_Player implements black.Player {
     
     private NavObj foresight(int xPos, int yPos, Direction currentDirection) {
         // Determine current board location
-        System.out.println("FORESIGHT: Investigating [" + xPos + "," + yPos + "]");
-        System.out.println("currently moving " + currentDirection.toString());
+        // System.out.println("FORESIGHT: Investigating [" + xPos + "," + yPos + "]");
+        // System.out.println("currently moving " + currentDirection.toString());
         // Check if have reached out of bounds
         if(xPos > this.gameBoard.length - 1  || xPos < 0 || yPos > this.gameBoard.length - 1 || yPos < 0) {
             // reached out of bounds return unsafe indicator
@@ -295,6 +300,7 @@ public class UVI_Player implements black.Player {
     }
     
     private void establishBoardLocation(int lastPlayedCard) {
+        System.out.println("\nEstablishing board position: lastPlayed card is " + lastPlayedCard);
         if (lastPlayedCard == 0) {
             // first play of the game
             // We start at [0,0]
@@ -302,6 +308,7 @@ public class UVI_Player implements black.Player {
             // That will move us to [0,1]
             // Therefore we already know the position 
             // for our opponnet
+            System.out.println("\n" + this.getName() + " makes the first move!");
             this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
             this.xPosition = 0;
             this.yPosition = 1;
@@ -767,8 +774,8 @@ public class UVI_Player implements black.Player {
                             nextLocation = foresight(xPosition, yPosition - 1, Direction.UP);
                             if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos())) {
                                 this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
-                                this.yPosition = nextLocation.getyPos();
                                 this.xPosition = nextLocation.getxPos();
+                                this.yPosition = nextLocation.getyPos();
                                 this.currentDirection = nextLocation.getDirection();
                                 card = 2;
                                 cardIsChosen = true;
@@ -822,6 +829,7 @@ public class UVI_Player implements black.Player {
                         option = 0;
                         // select default card to return
                         this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
+                        System.out.println("We lost at this point [" + xPosition + "," + yPosition +  "] :(");
                         card = 2;
                         cardIsChosen = true;
                         break;
@@ -855,7 +863,7 @@ public class UVI_Player implements black.Player {
                             if (isSafePosition(nextLocation.getxPos(), nextLocation.getyPos() )) {
                                 this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.TOP_LEFT_CURVE);
                                 this.xPosition = nextLocation.getxPos();
-                                this.xPosition = nextLocation.getyPos();
+                                this.yPosition = nextLocation.getyPos();
                                 this.currentDirection = nextLocation.getDirection();
                                 card = 1;
                                 cardIsChosen = true;
@@ -891,6 +899,7 @@ public class UVI_Player implements black.Player {
                         option = 0;
                         // select default card to return
                         this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
+                        System.out.println("We lost at this point [" + xPosition + "," + yPosition +  "] :(");
                         card = 2;
                         cardIsChosen = true;
                         break;
@@ -962,6 +971,7 @@ public class UVI_Player implements black.Player {
                         option = 0;
                         // select default card to return
                         this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
+                        System.out.println("We lost at this point [" + xPosition + "," + yPosition +  "] :(");
                         card = 2; 
                         cardIsChosen = true;
                         break;
@@ -1031,6 +1041,7 @@ public class UVI_Player implements black.Player {
                         option = 0;
                         // select default card to return
                         this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
+                        System.out.println("We lost at this point [" + xPosition + "," + yPosition +  "] :(");
                         card = 2;
                         cardIsChosen = true;
                         break;
