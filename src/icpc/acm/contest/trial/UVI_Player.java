@@ -270,8 +270,8 @@ public class UVI_Player implements black.Player {
 
     private void crawlBoard(int xPos, int yPos, Direction currentDirection) {
         // Determine current board location
-        System.out.println("Starting board traversal at [" + xPos + "," + yPos + "]");
-        System.out.println("Direction: " + currentDirection.toString());
+        //System.out.println("Starting board traversal at [" + xPos + "," + yPos + "]");
+        //System.out.println("Direction: " + currentDirection.toString());
         BoardSpace currentSpace = null;
         if (isSafePosition(xPos, yPos)) {
             currentSpace = this.virtualBoard[xPos][yPos];
@@ -282,8 +282,8 @@ public class UVI_Player implements black.Player {
             // empty space
             // base case
             // we have landed on this  space
-            System.out.println("Landed on blank space at [" + xPos + "," + yPos + "]");
-            System.out.println("Direction: " + currentDirection.toString());
+            //System.out.println("Landed on blank space at [" + xPos + "," + yPos + "]");
+            //System.out.println("Direction: " + currentDirection.toString());
             this.xPosition = xPos;
             this.yPosition = yPos;
             this.currentDirection = currentDirection;
@@ -340,12 +340,12 @@ public class UVI_Player implements black.Player {
 
     private boolean isBadPath(int xPos, int yPos, Direction currentDirection, BoardSpace[][] virtualBoard) {
         // Determine current board location
-        System.out.println("Starting bad path detection at [" + xPos + "," + yPos + "]");
-        System.out.println("Direction: " + currentDirection.toString());
+        //System.out.println("Starting bad path detection at [" + xPos + "," + yPos + "]");
+        //System.out.println("Direction: " + currentDirection.toString());
         BoardSpace currentSpace = null;
         if (isSafePosition(xPos, yPos) != true) {
-            System.out.println("Landed on unsafe space at [" + xPos + "," + yPos + "]");
-            System.out.println("Direction: " + currentDirection.toString());
+            //System.out.println("Landed on unsafe space at [" + xPos + "," + yPos + "]");
+            //System.out.println("Direction: " + currentDirection.toString());
             return true;
         } else {
             currentSpace = virtualBoard[xPos][yPos];
@@ -354,8 +354,8 @@ public class UVI_Player implements black.Player {
             // empty space
             // base case
             // we have landed on this  space
-            System.out.println("Landed on blank space isBadPath at [" + xPos + "," + yPos + "]");
-            System.out.println("Direction: " + currentDirection.toString());
+            //System.out.println("Landed on blank space isBadPath at [" + xPos + "," + yPos + "]");
+            //System.out.println("Direction: " + currentDirection.toString());
             return false;
         } else {
             // we might be set off course
@@ -413,12 +413,12 @@ public class UVI_Player implements black.Player {
 
     private boolean isGoodPath(int xPos, int yPos, Direction currentDirection, BoardSpace[][] virtualBoard) {
         // Determine if we force player into a trap
-        System.out.println("Starting winning path detection at [" + xPos + "," + yPos + "]");
-        System.out.println("Direction: " + currentDirection.toString());
+        //System.out.println("Starting winning path detection at [" + xPos + "," + yPos + "]");
+        //System.out.println("Direction: " + currentDirection.toString());
         BoardSpace currentSpace = null;
         if (isSafePosition(xPos, yPos) != true) {
-            System.out.println("Landed on unsafe space at [" + xPos + "," + yPos + "]\nDisqualified for good winning path!");
-            System.out.println("Direction: " + currentDirection.toString());
+            //System.out.println("Landed on unsafe space at [" + xPos + "," + yPos + "]\nDisqualified for good winning path!");
+            //System.out.println("Direction: " + currentDirection.toString());
             return false;
         } else {
             currentSpace = virtualBoard[xPos][yPos];
@@ -428,8 +428,8 @@ public class UVI_Player implements black.Player {
             // empty space
             // base case
             // we have landed on this  space
-            System.out.println("Landed on blank space for winning path detection at [" + xPos + "," + yPos + "]");
-            System.out.println("Direction: " + currentDirection.toString());
+            //System.out.println("Landed on blank space for winning path detection at [" + xPos + "," + yPos + "]");
+            //System.out.println("Direction: " + currentDirection.toString());
             return isWinnningMove(xPos, yPos, currentDirection, virtualBoard);
         } else {
             // we might be set off course
@@ -498,7 +498,7 @@ public class UVI_Player implements black.Player {
                 if (canLoseUp == false || canLoseLeft == false || canLoseRight == false) {
                     return false;
                 } else {
-                    System.out.println("Won at [" + xPos + "," + yPos + "] !!");
+                    //System.out.println("Won at [" + xPos + "," + yPos + "] !!");
                     return true;
                 }
             case DOWN:
@@ -508,7 +508,7 @@ public class UVI_Player implements black.Player {
                 if (canLoseDown == false || canLoseLeft == false || canLoseRight == false) {
                     return false;
                 } else {
-                    System.out.println("Won at [" + xPos + "," + yPos + "] !!");
+                    //System.out.println("Won at [" + xPos + "," + yPos + "] !!");
                     return true;
                 }
             case LEFT:
@@ -518,7 +518,7 @@ public class UVI_Player implements black.Player {
                 if (canLoseUp == false || canLoseLeft == false || canLoseDown == false) {
                     return false;
                 } else {
-                    System.out.println("Won at [" + xPos + "," + yPos + "] !!");
+                    //System.out.println("Won at [" + xPos + "," + yPos + "] !!");
                     return true;
                 }
             case RIGHT:
@@ -528,7 +528,7 @@ public class UVI_Player implements black.Player {
                 if (canLoseUp == false || canLoseDown == false || canLoseRight == false) {
                     return false;
                 } else {
-                    System.out.println("Won at [" + xPos + "," + yPos + "] !!");
+                    //System.out.println("Won at [" + xPos + "," + yPos + "] !!");
                     return true;
                 }
             default:
@@ -542,14 +542,14 @@ public class UVI_Player implements black.Player {
         boolean canWinDown = false;
         boolean canWinLeft = false;;
         boolean canWinRight = false;
-        System.out.println("\n\nChecking vunerablity at [" + xPos + "," + yPos + "] \n");
+        //System.out.println("\n\nChecking vunerablity at [" + xPos + "," + yPos + "] \n");
         switch (currentDirection) {
             case UP:
                 canWinUp = isGoodPath(xPos, yPos - 1, Direction.UP, virtualBoard);
                 canWinLeft = isGoodPath(xPos - 1, yPos, Direction.LEFT, virtualBoard);
                 canWinRight = isGoodPath(xPos + 1, yPos, Direction.RIGHT, virtualBoard);
                 if (canWinUp == true || canWinLeft == true || canWinRight == true) {
-                    System.out.println("\nFound potential losing move at [" + xPos + "," + yPos + "] !!\n");
+                    //System.out.println("\nFound potential losing move at [" + xPos + "," + yPos + "] !!\n");
                     return true;
                 } else {
                     return false;
@@ -559,7 +559,7 @@ public class UVI_Player implements black.Player {
                 canWinLeft = isGoodPath(xPos - 1, yPos, Direction.LEFT, virtualBoard);
                 canWinRight = isGoodPath(xPos + 1, yPos, Direction.RIGHT, virtualBoard);
                 if (canWinDown == true || canWinLeft == true || canWinRight == true) {
-                    System.out.println("\nFound potential losing move at [" + xPos + "," + yPos + "] !!\n");
+                    //System.out.println("\nFound potential losing move at [" + xPos + "," + yPos + "] !!\n");
                     return true;
                 } else {
                     return false;
@@ -569,7 +569,7 @@ public class UVI_Player implements black.Player {
                 canWinLeft = isGoodPath(xPos - 1, yPos, Direction.LEFT, virtualBoard);
                 canWinDown = isGoodPath(xPos, yPos + 1, Direction.DOWN, virtualBoard);
                 if (canWinUp == true || canWinLeft == true || canWinDown == true) {
-                    System.out.println("\nFound potential losing move at [" + xPos + "," + yPos + "] !!\n");
+                    //System.out.println("\nFound potential losing move at [" + xPos + "," + yPos + "] !!\n");
                     return true;
                 } else {
                     return false;
@@ -579,7 +579,7 @@ public class UVI_Player implements black.Player {
                 canWinDown = isGoodPath(xPos, yPos + 1, Direction.DOWN, virtualBoard);
                 canWinRight = isGoodPath(xPos + 1, yPos, Direction.RIGHT, virtualBoard);
                 if (canWinUp == true || canWinDown == true || canWinRight == true) {
-                    System.out.println("\nFound potential losing move at [" + xPos + "," + yPos + "] !!\n");
+                    //System.out.println("\nFound potential losing move at [" + xPos + "," + yPos + "] !!\n");
                     return true;
                 } else {
                     return false;
@@ -591,12 +591,12 @@ public class UVI_Player implements black.Player {
 
     private NavObj foresightv2(int xPos, int yPos, Direction currentDirection) {
         // Determine current board location
-        // System.out.println("FORESIGHT: Investigating [" + xPos + "," + yPos + "]");
-        // System.out.println("currently moving " + currentDirection.toString());
+        // //System.out.println("FORESIGHT: Investigating [" + xPos + "," + yPos + "]");
+        // //System.out.println("currently moving " + currentDirection.toString());
         // Check if have reached out of bounds
         if (isSafePosition(xPos, yPos) != true) {
             // reached out of bounds return unsafe indicator
-            System.out.println("\nOoops! Reached out of bounds!\n");
+            //System.out.println("\nOoops! Reached out of bounds!\n");
             return null;
         }
         BoardSpace currentSpace = this.virtualBoard[xPos][yPos];
@@ -614,10 +614,10 @@ public class UVI_Player implements black.Player {
             }else if(isLosingMove(xPos, yPos, currentDirection, cloneVirtualBoard(virtualBoard))) {
                 return new NavObj(xPos, yPos, currentDirection, MoveOutcome.TRAPPED_SELF);
             } else if(this.gameBoard[xPos][yPos] > 0) {
-                System.out.println("\nFOUND Time bonus at [" + xPos + "," + yPos + "] !!\n");
+                //System.out.println("\nFOUND Time bonus at [" + xPos + "," + yPos + "] !!\n");
                 return new NavObj(xPos, yPos, currentDirection, MoveOutcome.TIME_BONUS);
             } else {
-                System.out.println("\nFOUND NORMAL SPACE at " + xPos + "," + yPos + "\n");
+                //System.out.println("\nFOUND NORMAL SPACE at " + xPos + "," + yPos + "\n");
                 return new NavObj(xPos, yPos, currentDirection, MoveOutcome.NEUTRAL_OUTCOME);
             }
         } else {
@@ -678,12 +678,12 @@ public class UVI_Player implements black.Player {
 
     private NavObj foresight(int xPos, int yPos, Direction currentDirection) {
         // Determine current board location
-        // System.out.println("FORESIGHT: Investigating [" + xPos + "," + yPos + "]");
-        // System.out.println("currently moving " + currentDirection.toString());
+        // //System.out.println("FORESIGHT: Investigating [" + xPos + "," + yPos + "]");
+        // //System.out.println("currently moving " + currentDirection.toString());
         // Check if have reached out of bounds
         if (isSafePosition(xPos, yPos) != true) {
             // reached out of bounds return unsafe indicator
-            System.out.println("\nOoops! Reached out of bounds!\n");
+            //System.out.println("\nOoops! Reached out of bounds!\n");
             return null;
         }
         BoardSpace currentSpace = this.virtualBoard[xPos][yPos];
@@ -751,7 +751,7 @@ public class UVI_Player implements black.Player {
     }
 
     private void establishBoardLocation(int lastPlayedCard) {
-        System.out.println("\nEstablishing board position: lastPlayed card is " + lastPlayedCard);
+        //System.out.println("\nEstablishing board position: lastPlayed card is " + lastPlayedCard);
         if (lastPlayedCard == 0) {
             // first play of the game
             // We start at [0,0]
@@ -759,7 +759,7 @@ public class UVI_Player implements black.Player {
             // That will move us to [0,1]
             // Therefore we already know the position 
             // for our opponnet
-            System.out.println("\n" + this.getName() + " makes the first move!");
+            //System.out.println("\n" + this.getName() + " makes the first move!");
             this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
             this.xPosition = 0;
             this.yPosition = 1;
@@ -928,8 +928,8 @@ public class UVI_Player implements black.Player {
                 return 1;
             } else if ((this.yPosition + 1) < this.gameBoard.length - 1) {
                 // we can go down one
-                // System.out.println("this.yPosition + 1 > 0 : " + (this.yPosition + 1));
-                // System.out.println("this.xPosition + 1 < this.gameBoard.length - 1 " + (this.xPosition + 1));
+                // //System.out.println("this.yPosition + 1 > 0 : " + (this.yPosition + 1));
+                // //System.out.println("this.xPosition + 1 < this.gameBoard.length - 1 " + (this.xPosition + 1));
                 this.yPosition += 1;
                 this.currentDirection = Direction.DOWN;
                 return 3;
@@ -1207,7 +1207,7 @@ public class UVI_Player implements black.Player {
         // Level 1 attempts to avoid red squares
         // if no safe moves are possible the second card
         // is chosen by default
-        System.out.println("\nUtilizing Level 2 algorithm with foresight ability....\n");
+        //System.out.println("\nUtilizing Level 2 algorithm with foresight ability....\n");
         int card = 2;
         int option = 0;
         boolean cardIsChosen = false;
@@ -1267,7 +1267,7 @@ public class UVI_Player implements black.Player {
                         option = 0;
                         // select default card to return
                         this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
-                        System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
+                        //System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
                         card = 2;
                         cardIsChosen = true;
                         break;
@@ -1323,7 +1323,7 @@ public class UVI_Player implements black.Player {
                         option = 0;
                         // select default card to return
                         this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
-                        System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
+                        //System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
                         card = 2;
                         cardIsChosen = true;
                         break;
@@ -1379,7 +1379,7 @@ public class UVI_Player implements black.Player {
                         option = 0;
                         // select default card to return
                         this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
-                        System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
+                        //System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
                         card = 2;
                         cardIsChosen = true;
                         break;
@@ -1433,7 +1433,7 @@ public class UVI_Player implements black.Player {
                         option = 0;
                         // select default card to return
                         this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
-                        System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
+                        //System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
                         card = 2;
                         cardIsChosen = true;
                         break;
@@ -1454,7 +1454,7 @@ public class UVI_Player implements black.Player {
         // Level 3 attempts to be more aggressive
         // if no safe moves are possible the second card
         // 
-        System.out.println("\nUtilizing Level 2 algorithm with foresight ability....\n");
+        //System.out.println("\nUtilizing Level 2 algorithm with foresight ability....\n");
         int card = 2;
         int option = 0;
         boolean cardIsChosen = false;
@@ -1588,7 +1588,7 @@ public class UVI_Player implements black.Player {
                             // if we have atleast one time bonus
                             // choose it by default
                             NavObj choice = timeBounusChoices.get(0);
-                            System.out.println("Testing ........... x,y " + choice.getxPos() + "," + choice.getyPos());
+                            //System.out.println("Testing ........... x,y " + choice.getxPos() + "," + choice.getyPos());
                             this.virtualBoard[xPosition][yPosition] = new BoardSpace(choice.getNextMove());
                             this.xPosition = choice.getxPos();
                             this.yPosition = choice.getyPos();
@@ -1601,7 +1601,7 @@ public class UVI_Player implements black.Player {
                             // choose it
                             NavObj choice = normalChoices.get(0);
                             this.virtualBoard[xPosition][yPosition] = new BoardSpace(choice.getNextMove());
-                            // System.out.println("Testing ........... x,y " + choice.getxPos() + "," + choice.getyPos());
+                            // //System.out.println("Testing ........... x,y " + choice.getxPos() + "," + choice.getyPos());
                             this.xPosition = choice.getxPos();
                             this.yPosition = choice.getyPos();
                             this.currentDirection = choice.getDirection();
@@ -1612,17 +1612,17 @@ public class UVI_Player implements black.Player {
                             
                             NavObj choice = trapMoves.get(0);
                             this.virtualBoard[xPosition][yPosition] = new BoardSpace(choice.getNextMove());
-                            // System.out.println("Testing ........... x,y " + choice.getxPos() + "," + choice.getyPos());
+                            // //System.out.println("Testing ........... x,y " + choice.getxPos() + "," + choice.getyPos());
                             this.xPosition = choice.getxPos();
                             this.yPosition = choice.getyPos();
                             this.currentDirection = choice.getDirection();
                             card = choice.getChosenCard();
                             cardIsChosen = true;
-                            System.out.println("Taking a risk, might lead to trap [" + xPosition + "," + yPosition + "] :(");
+                            //System.out.println("Taking a risk, might lead to trap [" + xPosition + "," + yPosition + "] :(");
                         } else {
                             // no choices so we lost
                             this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
-                            System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
+                            //System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
                             card = 2;
                             cardIsChosen = true;
                         }
@@ -1781,12 +1781,12 @@ public class UVI_Player implements black.Player {
                             this.currentDirection = choice.getDirection();
                             card = choice.getChosenCard();
                             cardIsChosen = true;
-                            System.out.println("Taking a risk, might lead to trap [" + xPosition + "," + yPosition + "] :(");
+                            //System.out.println("Taking a risk, might lead to trap [" + xPosition + "," + yPosition + "] :(");
                         } 
                         else {
                             // no choices so we lost
                             this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.VERTICAL_LINE);
-                            System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
+                            //System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
                             card = 2;
                             cardIsChosen = true;
                         }
@@ -1944,11 +1944,11 @@ public class UVI_Player implements black.Player {
                             this.currentDirection = choice.getDirection();
                             card = choice.getChosenCard();
                             cardIsChosen = true;
-                            System.out.println("Taking a risk, might lead to trap [" + xPosition + "," + yPosition + "] :(");
+                            //System.out.println("Taking a risk, might lead to trap [" + xPosition + "," + yPosition + "] :(");
                         } else {
                             // no choices so we lost
                             this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
-                            System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
+                            //System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
                             card = 2;
                             cardIsChosen = true;
                         }
@@ -2104,11 +2104,11 @@ public class UVI_Player implements black.Player {
                             this.currentDirection = choice.getDirection();
                             card = choice.getChosenCard();
                             cardIsChosen = true;
-                            System.out.println("Taking a risk, might lead to trap [" + xPosition + "," + yPosition + "] :(");
+                            //System.out.println("Taking a risk, might lead to trap [" + xPosition + "," + yPosition + "] :(");
                         } else {
                             // no choices so we lost
                             this.virtualBoard[xPosition][yPosition] = new BoardSpace(Move.HORIZONTAL_LINE);
-                            System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
+                            //System.out.println("We lost at this point [" + xPosition + "," + yPosition + "] :(");
                             card = 2;
                             cardIsChosen = true;
                         }
@@ -2120,7 +2120,7 @@ public class UVI_Player implements black.Player {
         trapMoves.clear();
         timeBounusChoices.clear();
         normalChoices.clear();
-        System.out.println("\nReturning card # " + card + "\n");
+        //System.out.println("\nReturning card # " + card + "\n");
         return card;
     }
 
@@ -2135,7 +2135,7 @@ public class UVI_Player implements black.Player {
         } else {
             isSafe = false;
         }
-        System.out.println("[" + x + "," + y + "] " + (isSafe == true ? " is a safe position" : "is not a safe position"));
+        //System.out.println("[" + x + "," + y + "] " + (isSafe == true ? " is a safe position" : "is not a safe position"));
         return isSafe;
     }
 

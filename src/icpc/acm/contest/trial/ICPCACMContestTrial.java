@@ -18,7 +18,7 @@ public class ICPCACMContestTrial {
         Black.gridOn();
         // for debugging purposes
         // Black.start(10, Demo.class,UVI_Player.class, 100, 500000000, 500);
-        Black.start(5, UVI_Player.class);
+        Black.start(10, UVI_Player.class, Demo.class);
         
     }
 }
